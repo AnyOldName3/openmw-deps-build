@@ -4,6 +4,8 @@ runs:
   steps:
     - working-directory: ${{ env.VCPKG_INSTALLATION_ROOT }}
       run: |
+        echo ${{ env.VCPKG_INSTALLATION_ROOT }}
+        pwd
         git fetch
         git checkout ${{ env.VCPKG_REVISION }}
       shell: bash
