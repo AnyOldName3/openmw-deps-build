@@ -4,10 +4,10 @@ set(OSG_VER 3.6.5)
 
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO openmw/osg
-    REF 673f30ad3820faf2a5e901ffe403b5246b8918fe
-    SHA512 a75c5092f653d56ef216fd38eb84793816654bb16423bbb3b82c97d9ece98c72fcd8e30f109e5fa4563423c1b113ca1d790c5ab30803f6bfee48662d1e6ac9e8
-    HEAD_REF 3.6
+    REPO AnyOldName3/osg
+    REF d5fe0927b01abbe47fa680bb3db34db33b934431
+    SHA512 0e5e755d7b12c997806f767dbe1ca5b417948537f2e90a4ec3f45c37415101c71da3ff50b8b6d8cad77445fcd982c884e1ce889a41a5f3fab0fb9645820cdf28
+    HEAD_REF cmake-that-is-still-supported
 )
 
 file(REMOVE
