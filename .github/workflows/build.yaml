@@ -34,7 +34,7 @@ jobs:
     - name: is the diff different?
       run: |
         cd /usr/local/share/vcpkg
-        git diff ports/luajit/ ${{ github.workspace }}/ports/luajit
+        git diff ports/luajit/ ${{ github.workspace }}/ports/luajit || :
 
     - name: Install vcpkg packages
       run: >
