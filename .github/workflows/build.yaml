@@ -39,6 +39,7 @@ jobs:
 
     - name: get the logz
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: ${{ matrix.stuff.triplet }}-logz
         path: ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees/**/*.log
