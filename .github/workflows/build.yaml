@@ -28,6 +28,9 @@ jobs:
     - name: brew stuff
       run: brew install autoconf autoconf-archive automake
 
+    - name: Get GNU make from within the last two decades
+      run: brew install make
+
     - name: confirm vcpkg install path
       run: command -v vcpkg
 

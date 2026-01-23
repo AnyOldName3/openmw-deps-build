@@ -61,8 +61,8 @@ TARGET_TESTARCH_x86 =   \$(TARGET_TESTARCH_COMMON_32) LJ_TARGET_X86
 TARGET_TESTARCH_x64 =   \$(TARGET_TESTARCH_COMMON_64) LJ_TARGET_X64 'LJ_FR2 1'
 
 all:
-	\$(MAKE) clean \$(COMMON_OPTIONS) \$(BUILD_OPTIONS)
-	\$(MAKE) --debug=p all \$(COMMON_OPTIONS) \$(BUILD_OPTIONS)
+	gmake clean \$(COMMON_OPTIONS) \$(BUILD_OPTIONS)
+	gmake --debug=p all \$(COMMON_OPTIONS) \$(BUILD_OPTIONS)
 	for DA in \$(DASM_ARCHS); do \\
 	    rm -f src/host/buildvm_arch.h src/host/*.o; \\
 	    case "\$\$DA" in \\
@@ -71,7 +71,7 @@ all:
 	      x86)   TARGET_TESTARCH="\$(TARGET_TESTARCH_x86)" ;; \\
 	      x64)   TARGET_TESTARCH="\$(TARGET_TESTARCH_x64)" ;; \\
 	    esac ; \\
-	    \$(MAKE) --debug=p -C src host/buildvm-\$\$DA\$(EXECUTABLE_SUFFIX) \$(COMMON_OPTIONS) \$(BUILD_OPTIONS) \\
+	    gmake --debug=p -C src host/buildvm-\$\$DA\$(EXECUTABLE_SUFFIX) \$(COMMON_OPTIONS) \$(BUILD_OPTIONS) \\
 	      BUILDVM_T=host/buildvm-\$\$DA\$(EXECUTABLE_SUFFIX) "TARGET_TESTARCH=\$\${TARGET_TESTARCH}" \\
 	    || exit 1; \\
 	done
