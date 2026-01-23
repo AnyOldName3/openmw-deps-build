@@ -68,4 +68,5 @@ jobs:
 
       - name: build it
         run: |
+          cd LuaJIT
           BUILDMODE=${{ matrix.stuff.kind }} MACOS_DEPLOYMENT_TARGET=15.6 gmake --debug=p
