@@ -63,8 +63,8 @@ jobs:
           cd LuaJIT
           git checkout d0e88930ddde28ff662503f9f20facf34f7265aa
 
-    - name: Get GNU make from within the last two decades
-      run: brew install make
+      - name: Get GNU make from within the last two decades
+        run: brew install make
 
       - name: build it
         run: |
