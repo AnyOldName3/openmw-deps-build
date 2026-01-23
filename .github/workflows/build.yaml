@@ -31,9 +31,14 @@ jobs:
     - name: confirm vcpkg install path
       run: command -v vcpkg
 
+    - name: is the diff different?
+      run: |
+        cd /usr/local/share/vcpkg
+        git diff ports/luajit/ ${{ github.workspace }}/ports/luajit
+
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-triplets=triplets --host-triplet ${{ matrix.stuff.triplet }} --triplet ${{ matrix.stuff.triplet }}
+        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.stuff.triplet }} --triplet ${{ matrix.stuff.triplet }}
         luajit
 
     - name: get the logz
