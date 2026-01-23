@@ -42,7 +42,7 @@ jobs:
       if: always()
       with:
         name: ${{ matrix.stuff.triplet }}-logz
-        path: ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees/**/*.log
+        path: /usr/local/share/vcpkg/buildtrees/**/*.log
 
   upstream-macos:
     strategy:
