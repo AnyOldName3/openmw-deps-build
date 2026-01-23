@@ -33,7 +33,7 @@ jobs:
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.stuff.triplet }} --triplet ${{ matrix.stuff.triplet }}
+        vcpkg install --overlay-triplets=triplets --host-triplet ${{ matrix.stuff.triplet }} --triplet ${{ matrix.stuff.triplet }}
         luajit
 
     - name: get the logz
