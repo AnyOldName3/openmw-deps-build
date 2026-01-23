@@ -11,7 +11,6 @@ env:
 jobs:
   vcpkg-macos:
     strategy:
-      fail-fast: true
       matrix:
         stuff:
         - triplet: arm64-osx-dynamic
@@ -46,7 +45,6 @@ jobs:
 
   upstream-macos:
     strategy:
-      fail-fast: true
       matrix:
         stuff:
         - kind: dynamic
