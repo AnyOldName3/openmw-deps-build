@@ -63,6 +63,9 @@ jobs:
           cd LuaJIT
           git checkout d0e88930ddde28ff662503f9f20facf34f7265aa
 
+    - name: Get GNU make from within the last two decades
+      run: brew install make
+
       - name: build it
         run: |
-          BUILDMODE=${{ matrix.stuff.kind }} MACOS_DEPLOYMENT_TARGET=15.6 make --debug=p
+          BUILDMODE=${{ matrix.stuff.kind }} MACOS_DEPLOYMENT_TARGET=15.6 gmake --debug=p
