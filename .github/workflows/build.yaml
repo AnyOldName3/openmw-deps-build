@@ -9,307 +9,59 @@ env:
   VCPKG_REVISION: 84bab45d415d22042bd0b9081aea57f362da3f35
 
 jobs:
-  static-windows:
+  vcpkg-macos:
     strategy:
       fail-fast: true
       matrix:
-        msvc_version:
-        - year: 2019
-          triplet: x64-windows-2019-static
-        - year: 2022
-          triplet: x64-windows-static
+        stuff:
+        - triplet: arm64-osx-dynamic
+        - triplet: arm64-osx
 
-    name: static-windows-${{ matrix.msvc_version.year }}
+    name: vcpkg-${{ matrix.stuff.triplet }}
 
-    runs-on: windows-2022
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Export GitHub Actions cache environment variables
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
     - uses: ./.github/actions/vcpkg-setup
+
+    - name: brew stuff
+      run: brew install autoconf autoconf-archive automake
+
+    - name: confirm vcpkg install path
+      run: command -v vcpkg
 
     - name: Install vcpkg packages
       run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
-        ffmpeg
-        freetype
-        icu
+        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.stuff.triplet }} --triplet ${{ matrix.stuff.triplet }}
         luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
 
-    - name: Export installed vcpkg packages
-      run: >
-        vcpkg export
-        --x-all-installed
-        --raw
-        --output-dir ${{ github.workspace }}
-        --output intermediate
-
-    - name: Move pdb files
-      working-directory: '${{ github.workspace }}/intermediate'
-      run: |
-        robocopy installed pdb/installed *.pdb /S /MOVE
-        if ($lastexitcode -lt 8) {
-          $global:LASTEXITCODE = $null
-        }
-
-    - name: Archive pdb files
-      working-directory: '${{ github.workspace }}/intermediate/pdb'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}.7z" installed
-
-    - name: Store archived pdb files
+    - name: get the logz
       uses: actions/upload-artifact@v4
       with:
-        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-pdb-${{ github.sha }}.7z
+        name: ${{ matrix.stuff.triplet }}-logz
+        path: ${{ env.VCPKG_INSTALLATION_ROOT }}/buildtrees/**/*.log
 
-    - name: Archive everything else
-      working-directory: '${{ github.workspace }}/intermediate'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z" * -x!pdb
-
-    - name: Store exported vcpkg packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-static-${{ github.sha }}.7z
-
-  dynamic-windows:
+  upstream-macos:
     strategy:
       fail-fast: true
       matrix:
-        msvc_version:
-        - year: 2019
-          triplet: x64-windows-2019
-        - year: 2022
-          triplet: x64-windows
+        stuff:
+        - kind: dynamic
+        - kind: static
+    
+    name: upstream-${{ matrix.stuff.kind }}
 
-    name: dynamic-windows-${{ matrix.msvc_version.year }}
-
-    runs-on: windows-2022
+    runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: get source
+        run: |
+          git clone https://github.com/LuaJIT/LuaJIT
+          cd LuaJIT
+          git checkout d0e88930ddde28ff662503f9f20facf34f7265aa
 
-    - name: Export GitHub Actions cache environment variables
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-    - uses: ./.github/actions/vcpkg-setup
-
-    - name: Install vcpkg packages
-      run: >
-        vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
-        ffmpeg
-        freetype
-        icu
-        luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
-
-    - name: Export installed vcpkg packages
-      run: >
-        vcpkg export
-        --x-all-installed
-        --raw
-        --output-dir ${{ github.workspace }}
-        --output intermediate
-
-    - name: Move pdb files
-      working-directory: '${{ github.workspace }}/intermediate'
-      run: |
-        robocopy installed pdb/installed *.pdb /S /MOVE
-        if ($lastexitcode -lt 8) {
-          $global:LASTEXITCODE = $null
-        }
-
-    - name: Archive pdb files
-      working-directory: '${{ github.workspace }}/intermediate/pdb'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}.7z" installed
-
-    - name: Store archived pdb files
-      uses: actions/upload-artifact@v4
-      with:
-        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-pdb-${{ github.sha }}.7z
-
-    - name: Archive everything else
-      working-directory: '${{ github.workspace }}/intermediate'
-      run: 7z a "${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}.7z" * -x!pdb
-
-    - name: Store exported vcpkg packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}
-        path: ${{ github.workspace }}/vcpkg-x64-windows-${{ matrix.msvc_version.year }}-${{ github.sha }}.7z
-
-    - name: Repackage binaries for symbol server
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
-      run: .\Store-Symbols.ps1 ${{ github.workspace }}\intermediate
-
-    - name: Upload symbols to symbol server
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: eu-west-3
-      if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
-      working-directory: ${{ github.workspace }}/SymStore
-      run: aws --endpoint-url https://rgw.ctrl-c.liu.se s3 sync --size-only --exclude * --include *.dl_ --include *.pd_ . s3://openmw-sym
-
-  upload-deps:
-    needs:
-      - dynamic-windows
-
-    runs-on: ubuntu-latest
-
-    env:
-      file: TEST
-
-    permissions:
-      contents: write
-
-    # non-master or tagged master only
-    if: ${{ github.ref_name != 'master' }}
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-
-    - name: Set file name
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "file=${{ github.ref_name }}" >> "$GITHUB_ENV"
-
-    - name: Rename artifacts
-      run: |
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-${{ github.sha }}.7z vcpkg-x64-windows-2019-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-${{ github.sha }}.7z vcpkg-x64-windows-2022-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2019-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2019-pdb-${{ env.file }}.7z
-        mv vcpkg-x64-*-${{ github.sha }}/vcpkg-x64-windows-2022-pdb-${{ github.sha }}.7z vcpkg-x64-windows-2022-pdb-${{ env.file }}.7z
-
-    - name: Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
-      with:
-        files: vcpkg-*-${{ env.file }}.7z
-
-    - name: Setup ssh-agent
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      if: ${{ env.SSH_PRIVATE_KEY != '' }}
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Import GPG key
-      id: import_gpg
-      env:
-        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        GPG_PRIVATE_KEY_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
-      if: ${{ env.GPG_PRIVATE_KEY != '' && env.GPG_PRIVATE_KEY_PASSPHRASE != '' }}
-      uses: crazy-max/ghaction-import-gpg@v6
-      with:
-        gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-        passphrase: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
-
-    - name: Configure ssh known hosts for gitlab.com
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      if: ${{ env.SSH_PRIVATE_KEY != '' }}
-      run: cat gitlab_known_hosts >> ~/.ssh/known_hosts
-
-    - name: Configure git user
-      run: |
-        git config --global user.email 'openmw-deps-build@users.noreply.github.com'
-        git config --global user.name 'openmw-deps-build'
-
-    - name: Configure git sign key
-      if: ${{ steps.import_gpg.outputs.fingerprint != '' }}
-      run: |
-        git config --global user.signkey ${{ steps.import_gpg.outputs.fingerprint }}
-        git config --global commit.gpgsign true
-
-    - name: Clone openmw-deps repository via SSH
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        GIT_LFS_SKIP_SMUDGE: 1
-        # see https://github.com/git-lfs/git-lfs/issues/5749
-        GIT_CLONE_PROTECTION_ACTIVE: false
-      if: ${{ env.SSH_PRIVATE_KEY != '' }}
-      run: git clone git@gitlab.com:OpenMW/openmw-deps.git
-
-    - name: Clone openmw-deps repository via HTTPS
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        GIT_LFS_SKIP_SMUDGE: 1
-        # see https://github.com/git-lfs/git-lfs/issues/5749
-        GIT_CLONE_PROTECTION_ACTIVE: false
-      if: ${{ env.SSH_PRIVATE_KEY == '' }}
-      run: git clone https://gitlab.com/OpenMW/openmw-deps.git
-
-    - uses: ./.github/actions/manifest-setup
-      with:
-        file-pattern: vcpkg-x64-windows-*-${{ env.file }}
-        subdirectory: windows
-
-    - name: Generate commit message
-      env:
-        GH_TOKEN: ${{ github.token }}
-      working-directory: ${{ github.workspace }}/openmw-deps
-      run: |
-        echo Add vcpkg package urls built at ${{ github.sha }} > commit_message.txt
-        echo >> commit_message.txt
-        printf 'Pushed by ' >> commit_message.txt
-        url=$(gh run --repo ${{ github.repository }} view ${{ github.run_id }} --json jobs --jq '.jobs[] | select(.name == "upload-deps") | .url')
-        echo "${url:?}" >> commit_message.txt
-        echo >> commit_message.txt
-
-    - name: Commit generated metadata
-      working-directory: ${{ github.workspace }}/openmw-deps
-      run: |
-        git checkout -b vcpkg-${{ github.sha }}
-        git add windows/vcpkg-*-manifest.txt
-        git commit -F commit_message.txt
-
-    - name: Verify commit to openmw-deps repository
-      if: ${{ steps.import_gpg.outputs.fingerprint != '' }}
-      working-directory: ${{ github.workspace }}/openmw-deps
-      run: git verify-commit HEAD
-
-    - name: Push generated metadata to gitlab
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      # Make sure only signed commits are pushed
-      if: ${{ vars.PUSH_URL != '' && env.SSH_PRIVATE_KEY != '' && steps.import_gpg.outputs.fingerprint != '' }}
-      working-directory: ${{ github.workspace }}/openmw-deps
-      run: |
-        git remote set-url --push origin "${{ vars.PUSH_URL }}"
-        git push origin vcpkg-${{ github.sha }}
+      - name: build it
+        run: |
+          BUILDMODE=${{ matrix.stuff.kind }} MACOS_DEPLOYMENT_TARGET=15.6 make --debug=p
