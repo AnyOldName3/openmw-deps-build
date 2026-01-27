@@ -6,7 +6,7 @@ on:
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  VCPKG_REVISION: 84bab45d415d22042bd0b9081aea57f362da3f35
+  VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
 
 jobs:
   static-windows:
@@ -16,8 +16,6 @@ jobs:
         msvc_version:
         - year: 2019
           triplet: x64-windows-2019-static
-        - year: 2022
-          triplet: x64-windows-static
 
     name: static-windows-${{ matrix.msvc_version.year }}
 
@@ -38,19 +36,7 @@ jobs:
     - name: Install vcpkg packages
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
         ffmpeg
-        freetype
-        icu
-        luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
 
     - name: Export installed vcpkg packages
       run: >
@@ -95,8 +81,6 @@ jobs:
         msvc_version:
         - year: 2019
           triplet: x64-windows-2019
-        - year: 2022
-          triplet: x64-windows
 
     name: dynamic-windows-${{ matrix.msvc_version.year }}
 
@@ -117,19 +101,7 @@ jobs:
     - name: Install vcpkg packages
       run: >
         vcpkg install --overlay-ports=ports --overlay-triplets=triplets --host-triplet ${{ matrix.msvc_version.triplet }} --triplet ${{ matrix.msvc_version.triplet }}
-        boost-geometry
-        boost-iostreams
-        boost-program-options
-        bullet3[double-precision,multithreading]
         ffmpeg
-        freetype
-        icu
-        luajit
-        lz4
-        mygui
-        openal-soft
-        openmw-osg
-        sdl2
 
     - name: Export installed vcpkg packages
       run: >
