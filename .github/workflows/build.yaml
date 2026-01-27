@@ -6,7 +6,7 @@ on:
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
-  VCPKG_REVISION: 1ecea762f554fc81e43e199b53d262ae8373d7e3
+  VCPKG_REVISION: f9f39178cc0d2c9a60389501d72afc1545eb5a5b
 
 jobs:
   static-windows:
