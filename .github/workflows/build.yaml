@@ -15,25 +15,44 @@ jobs:
       matrix:
         args:
           - triplet: x64-linux-dynamic
-            runner_image: ubuntu-24.04
-
-    runs-on: ${{ matrix.args.runner_image }}
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:9
     name: ${{ matrix.args.triplet }}
+    env:
+      VCPKG_INSTALLATION_ROOT: /vcpkg
     steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt update
-      - run: >
-          sudo apt install -y
+      - run: dnf clean all
+      - run: dnf install -y git epel-release dnf-plugins-core
+      - run: dnf config-manager --set-enabled crb
+      - name: Install deps
+        run: >-
+          dnf install -y p7zip
+          cmake
+          autoconf-latest
           autoconf-archive
-          libgl-dev
-          libltdl-dev
-          libegl1-mesa-dev
-          libx11-dev
-          libxft-dev
-          libxext-dev
-          libxkbcommon-dev
-          libwayland-dev
+          automake
+          libtool
+          pkgconfig
+          mesa-libGL-devel
+          mesa-libEGL-devel
+          libX11-devel
+          libXft-devel
+          libXext-devel
+          libxkbcommon-devel
+          wayland-devel
+          gettext-devel
+          kernel-headers
+          ninja-build
+          gcc-toolset-13
+          texinfo
           nasm
+          unzip
+          zip
+          tar
+          perl
+
+      - uses: actions/checkout@v4
 
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v6
@@ -41,11 +60,12 @@ jobs:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
       - uses: ./.github/actions/vcpkg-setup
+        with:
+          install-vcpkg: true
 
       - name: Install vcpkg packages
-        run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
+        run: source /opt/rh/gcc-toolset-13/enable && vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
 
       - uses: ./.github/actions/vcpkg-export
         with:
