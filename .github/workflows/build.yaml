@@ -5,7 +5,6 @@ on:
 - pull_request
 
 env:
-  VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_REVISION: 6d332a018c433fad20822ff4b536e4ccdc3413bd
 
 jobs:
@@ -23,6 +22,8 @@ jobs:
       image: almalinux:9
     name: ${{ matrix.args.triplet }}
     env:
+      binary_cache_path: /vcpkg-binary-cache/
+      VCPKG_BINARY_SOURCES: "clear;files,/vcpkg-binary-cache/,readwrite"
       VCPKG_INSTALLATION_ROOT: /vcpkg
       BUILD_AUTOCONF_SHA512: 3f71d459e2127ef2c98b37f11f5284f0c92318ad8d31c5b6034bed370adfe9f3d0f7a12f87e2efced06c11e2a159de4d4a292b751104e83daf11342f25ba9721
     steps:
@@ -78,6 +79,12 @@ jobs:
         with:
           install-vcpkg: true
 
+      - name: Cache Binaries
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.binary_cache_path }}
+          key: vcpkg-binary-cache-${{ matrix.args.triplet }}
+
       - name: Install vcpkg packages
         run: source /opt/rh/gcc-toolset-13/enable && vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
 
@@ -105,6 +112,9 @@ jobs:
             runner_image: macos-15-intel
     runs-on: ${{ matrix.args.runner_image }}
     name: ${{ matrix.args.triplet }}
+    env:
+      binary_cache_path: /vcpkg-binary-cache/
+      VCPKG_BINARY_SOURCES: "clear;files,/vcpkg-binary-cache/,readwrite"
     steps:
       - uses: actions/checkout@v4
 
@@ -120,6 +130,12 @@ jobs:
         if: ${{ matrix.args.triplet == 'x64-osx-dynamic' }}
 
       - uses: ./.github/actions/vcpkg-setup
+
+      - name: Cache Binaries
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.binary_cache_path }}
+          key: vcpkg-binary-cache-${{ matrix.args.triplet }}
 
       - name: Install vcpkg packages
         run: vcpkg install --overlay-ports=ports --overlay-triplets=triplets --triplet ${{ matrix.args.triplet }} --host-triplet ${{ matrix.args.triplet }}
@@ -165,6 +181,9 @@ jobs:
     name: ${{ matrix.args.identifier }}
 
     runs-on: ${{ matrix.args.runner_image }}
+    env:
+      binary_cache_path: 'C:\vcpkg-binary-cache\'
+      VCPKG_BINARY_SOURCES: 'clear;files,C:\vcpkg-binary-cache\,readwrite'
 
     steps:
     - uses: actions/checkout@v4
@@ -177,6 +196,12 @@ jobs:
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
     - uses: ./.github/actions/vcpkg-setup
+
+    - name: Cache Binaries
+      uses: actions/cache@v5
+      with:
+        path: ${{ env.binary_cache_path }}
+        key: vcpkg-binary-cache-${{ matrix.args.triplet }}
 
     - name: Install vcpkg packages
       run: >
