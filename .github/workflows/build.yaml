@@ -93,6 +93,13 @@ jobs:
           output-name: vcpkg-export
           export-type: raw
 
+      - name: Repackage binaries for debuginfod server
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
+        run: ./store-symbols.sh -a ${{ github.workspace }}/vcpkg-export
+
       - run: tar -cf vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz vcpkg-export/
 
       - name: Store exported vcpkg packages
@@ -100,6 +107,15 @@ jobs:
         with:
           name: vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}
           path: ${{ github.workspace }}/vcpkg-${{ matrix.args.triplet }}-${{ github.sha }}.tar.xz
+
+      - name: Upload symbols to debuginfod server
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-west-3
+        if: ${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' }}
+        working-directory: ${{ github.workspace }}/SymStore
+        run: aws --endpoint-url https://rgw.ctrl-c.liu.se s3 sync --size-only . s3://openmw-sym
 
   macos:
     strategy:

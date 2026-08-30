@@ -2,3 +2,5 @@ vcpkg_installed
 vcpkg-*-test
 vcpkg-export
 vcpkg-*.tar.xz
+
+SymStore
