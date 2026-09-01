@@ -17,6 +17,7 @@ services:
               mesa-libGL-devel
               mesa-libEGL-devel
               libX11-devel
+              libXcursor-devel
               libXft-devel
               libXext-devel
               libxkbcommon-devel
