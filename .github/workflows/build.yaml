@@ -57,16 +57,24 @@ jobs:
           tar
           perl
 
+      - name: Cache autoconf
+        uses: actions/cache@v5
+        with:
+          path: /usr/local/
+          key: autoconf-cache-${{ env.BUILD_AUTOCONF_SHA512 }}-${{ runner.arch }}
+
       - run: |
-          tmpdir="$(mktemp -d)"
-          tarball="$tmpdir/autoconf.tar.gz"
-          curl -L https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz -o "$tarball"
-          printf '%s  %s\n' "$BUILD_AUTOCONF_SHA512" "$tarball" | sha512sum -c -
-          tar xf "$tarball" -C "$tmpdir"
-          cd "$tmpdir/autoconf-2.72"
-          ./configure --prefix=/usr/local
-          make && make install
-          rm -rf "$tmpdir"
+          if [[ ! -f /usr/local/bin/autoconf ]]; then
+            tmpdir="$(mktemp -d)"
+            tarball="$tmpdir/autoconf.tar.gz"
+            curl -L https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz -o "$tarball"
+            printf '%s  %s\n' "$BUILD_AUTOCONF_SHA512" "$tarball" | sha512sum -c -
+            tar xf "$tarball" -C "$tmpdir"
+            cd "$tmpdir/autoconf-2.72"
+            ./configure --prefix=/usr/local
+            make && make install
+            rm -rf "$tmpdir"
+          fi
 
       - uses: actions/checkout@v4
 
