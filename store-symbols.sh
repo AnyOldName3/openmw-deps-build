@@ -26,13 +26,17 @@ fresh_temp () {
 
 process_files () {
     for sharedobject do
-        echo Processing $sharedobject
-        buildid=$(readelf -n "$sharedobject" | grep -oP "Build ID:\s*\K\w+")
-        dest="SymStore/buildid/$buildid"
-        mkdir -p "$dest"
-        echo Generating $dest/debuginfo
-        objcopy --only-keep-debug --compress-debug-sections "$sharedobject" "$dest/debuginfo"
-        objcopy --strip-debug "$sharedobject"
+        if readelf -S "$sharedobject" | grep '\.debug' > /dev/null; then
+            echo Processing $sharedobject
+            buildid=$(readelf -n "$sharedobject" | grep -oP "Build ID:\s*\K\w+")
+            dest="SymStore/buildid/$buildid"
+            mkdir -p "$dest"
+            echo Generating $dest/debuginfo
+            objcopy --only-keep-debug --compress-debug-sections "$sharedobject" "$dest/debuginfo"
+            objcopy --strip-debug "$sharedobject"
+        else
+            echo "Skipping $sharedobject with no debug sections"
+        fi
     done
 }
 
