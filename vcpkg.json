@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "dependencies": [
     "boost-geometry",
     "boost-iostreams",
@@ -42,6 +43,14 @@
     {
       "name": "unshield",
       "platform": "osx|linux"
+    }
+  ],
+  "builtin-baseline": "6d332a018c433fad20822ff4b536e4ccdc3413bd",
+  "overrides": [
+    {
+      "name": "icu",
+      "version": "74.2#6",
+      "$why": "The next version in vcpkg requires newer autoconf than AlmaLinux 9 provides"
     }
   ]
 }
