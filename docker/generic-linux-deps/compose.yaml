@@ -35,18 +35,6 @@ services:
             )
             dnf install -y "$${packages[@]}"
         EOF
-        ENV BUILD_AUTOCONF_SHA512=3f71d459e2127ef2c98b37f11f5284f0c92318ad8d31c5b6034bed370adfe9f3d0f7a12f87e2efced06c11e2a159de4d4a292b751104e83daf11342f25ba9721
-        RUN <<EOF
-            tmpdir="$$(mktemp -d)"
-            tarball="$$tmpdir/autoconf.tar.gz"
-            curl -L https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz -o "$$tarball"
-            printf '%s  %s\n' "$$BUILD_AUTOCONF_SHA512" "$$tarball" | sha512sum -c -
-            tar xf "$$tarball" -C "$$tmpdir"
-            cd "$$tmpdir/autoconf-2.72"
-            ./configure --prefix=/usr/local
-            make && make install
-            rm -rf "$$tmpdir"
-        EOF
         RUN echo "source /opt/rh/gcc-toolset-13/enable" > /etc/profile.d/activate-gcc.sh
         ENV VCPKG_INSTALLATION_ROOT=/vcpkg
         ENV PATH="$$VCPKG_INSTALLATION_ROOT:$$PATH"
