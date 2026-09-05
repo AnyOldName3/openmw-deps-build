@@ -133,7 +133,7 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - run: brew install autoconf autoconf-archive automake
+      - run: brew install autoconf autoconf-archive automake libtool
       - run: brew install nasm
         if: ${{ matrix.args.triplet == 'x64-osx-dynamic' }}
 

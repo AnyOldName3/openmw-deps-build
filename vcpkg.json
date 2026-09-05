@@ -51,6 +51,11 @@
       "name": "icu",
       "version": "74.2#6",
       "$why": "The next version in vcpkg requires newer autoconf than AlmaLinux 9 provides"
+    },
+    {
+      "name": "gperf",
+      "version": "3.1#7",
+      "$why": "The next version in vcpkg requires newer autoconf than AlmaLinux 9 provides"
     }
   ]
 }
