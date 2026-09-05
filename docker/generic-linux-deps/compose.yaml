@@ -20,6 +20,7 @@ services:
               libXcursor-devel
               libXft-devel
               libXext-devel
+              libXrandr-devel
               libxkbcommon-devel
               wayland-devel
               gettext-devel
